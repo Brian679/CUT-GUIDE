@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Service Points{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">🧭 Campus Service Points</h1>
+
+<!-- Filter Controls -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Filter Services</h6>
+        <form method="get" class="row g-3">
+          <div class="col-md-6">
+            <select name="type" class="form-select">
+              <option value="">All Service Types</option>
+              {% for value, label in service_types %}
+                <option value="{{ value }}" {% if value == selected_type %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-check">
+              <input type="checkbox" name="accessibility" value="true" class="form-check-input" {% if request.GET.accessibility %}checked{% endif %}>
+              <span class="form-check-label">♿ Accessible Only</span>
+            </label>
+          </div>
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a href="{% url 'service_points' %}" class="btn btn-secondary">Reset</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Services Map -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body p-0">
+        <div id="services-map"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Services List -->
+<div class="row">
+  <div class="col-12">
+    <h2 class="mb-3">All Services ({{ services.count }})</h2>
+  </div>
+  
+  {% for service in services %}
+    <div class="col-md-6 mb-3">
+      <div class="card service-card h-100">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <h6 class="card-title mb-1">{{ service.name }}</h6>
+              <p class="card-text text-muted small mb-0">{{ service.get_service_type_display }}</p>
+            </div>
+            {% if service.accessibility_features %}
+              <span class="badge accessibility-badge">♿</span>
+            {% endif %}
+          </div>
+          
+          {% if service.description %}
+            <p class="card-text small mb-2">{{ service.description|truncatewords:15 }}</p>
+          {% endif %}
+          
+          <div class="small text-muted mb-3">
+            {% if service.building %}
+              📍 {{ service.building.name }}
+              {% if service.room %}
+                - {{ service.room.room_number }}
+              {% endif %}
+            {% endif %}
+          </div>
+          
+          {% if service.contact_phone or service.office_hours %}
+            <div class="small mb-3">
+              {% if service.contact_phone %}
+                📞 {{ service.contact_phone }}<br>
+              {% endif %}
+              {% if service.office_hours %}
+                ⏰ {{ service.office_hours }}<br>
+              {% endif %}
+            </div>
+          {% endif %}
+          
+          <a href="{% url 'service_detail' service.id %}" class="btn btn-primary btn-sm">View Details</a>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info">No services found matching your filters.</div>
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const map = initMap('services-map', [-17.2833, 30.2167], 15);
+    
+    {% for service in services %}
+      {% if service.latitude and service.longitude %}
+        addMarker(
+          map,
+          {{ service.latitude }},
+          {{ service.longitude }},
+          "{{ service.name }}",
+          "<strong>{{ service.name }}</strong><br>{{ service.get_service_type_display }}<br><a href='{% url 'service_detail' service.id %}'>View Details</a>"
+        );
+      {% endif %}
+    {% endfor %}
+  });
+</script>
+{% endblock %}

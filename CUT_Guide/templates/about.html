@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}About CUT-Guide{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <!-- Header -->
+  <div class="row mb-5">
+    <div class="col-lg-8 mx-auto text-center">
+      <h1 class="display-4 fw-bold mb-3">About CUT-Guide</h1>
+      <p class="lead text-muted">Campus Navigation & Information System for Chinhoyi University of Technology</p>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="row mb-5">
+    <div class="col-lg-8 mx-auto">
+      
+      <!-- Overview -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="card-title mb-3"><i class="fas fa-info-circle text-primary"></i> Overview</h4>
+          <p>CUT-Guide is a comprehensive Campus GIS Navigation System designed to help students, staff, and visitors navigate the Chinhoyi University of Technology campus efficiently.</p>
+          <p>The application leverages GPS coordinates and interactive mapping technology to provide real-time navigation, facility information, and campus exploration tools.</p>
+        </div>
+      </div>
+
+      <!-- Key Features -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="card-title mb-3"><i class="fas fa-star text-warning"></i> Key Features</h4>
+          <ul class="list-unstyled">
+            <li class="mb-2"><strong><i class="fas fa-map"></i> Interactive Map:</strong> Explore the campus with real-time GPS coordinates and facility markers</li>
+            <li class="mb-2"><strong><i class="fas fa-search"></i> Smart Search:</strong> Find buildings, rooms, services, and facilities instantly</li>
+            <li class="mb-2"><strong><i class="fas fa-route"></i> Directions:</strong> Get turn-by-turn directions to any campus location via Google Maps</li>
+            <li class="mb-2"><strong><i class="fas fa-building"></i> Building Info:</strong> View detailed information about campus buildings, floors, and rooms</li>
+            <li class="mb-2"><strong><i class="fas fa-hospital"></i> Service Points:</strong> Locate medical centers, libraries, offices, labs, and other facilities</li>
+            <li class="mb-2"><strong><i class="fas fa-wheelchair"></i> Accessibility:</strong> Filter services and buildings by accessibility features</li>
+            <li class="mb-2"><strong><i class="fas fa-user-circle"></i> User Accounts:</strong> Create accounts to save bookmarks and personalize your experience</li>
+            <li class="mb-2"><strong><i class="fas fa-compass"></i> Distance Calculation:</strong> Measure distances between campus locations</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Institution Info -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="card-title mb-3"><i class="fas fa-university text-success"></i> Institution</h4>
+          <p><strong>Name:</strong> {{ institution }}</p>
+          <p><strong>Location:</strong> {{ campus_location }}</p>
+          <p><strong>Application Version:</strong> {{ app_version }}</p>
+        </div>
+      </div>
+
+      <!-- Technology Stack -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="card-title mb-3"><i class="fas fa-code text-info"></i> Technology Stack</h4>
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Backend</h6>
+              <ul class="list-unstyled">
+                <li>Django 6.0.2</li>
+                <li>Python 3.14</li>
+                <li>SQLite Database</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6>Frontend</h6>
+              <ul class="list-unstyled">
+                <li>Bootstrap 5.3.2</li>
+                <li>Leaflet.js (Maps)</li>
+                <li>HTML5 & CSS3</li>
+              </ul>
+            </div>
+          </div>
+          <hr>
+          <div class="row">
+            <div class="col-md-6">
+              <h6>Services</h6>
+              <ul class="list-unstyled">
+                <li>Google Maps API</li>
+                <li>OpenStreetMap</li>
+                <li>GPS Navigation</li>
+              </ul>
+            </div>
+            <div class="col-md-6">
+              <h6>Features</h6>
+              <ul class="list-unstyled">
+                <li>User Authentication</li>
+                <li>Distance Calculation</li>
+                <li>Real-time Search</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- How to Use -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="card-title mb-3"><i class="fas fa-graduation-cap text-primary"></i> Getting Started</h4>
+          <ol>
+            <li class="mb-2"><strong>Explore the Map:</strong> Start on the homepage to see all campus buildings and service points</li>
+            <li class="mb-2"><strong>Search:</strong> Use the search bar to find specific locations or services</li>
+            <li class="mb-2"><strong>View Details:</strong> Click on any building or service to see comprehensive information</li>
+            <li class="mb-2"><strong>Get Directions:</strong> Click the "Get Directions" button to navigate to any location</li>
+            <li class="mb-2"><strong>Create Account:</strong> Sign up to personalize your experience and save bookmarks</li>
+            <li class="mb-2"><strong>Navigate Efficiently:</strong> Use the distance and route information to plan your journey</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Contact & Support -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <h4 class="card-title mb-3"><i class="fas fa-headset text-warning"></i> Support & Feedback</h4>
+          <p>For technical support, bug reports, or feature suggestions, please contact the CUT-Guide development team.</p>
+          <p class="text-muted mb-0"><small>This application is developed as part of research into campus GIS navigation systems.</small></p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Quick Links -->
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <h4 class="mb-3">Quick Links</h4>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <a href="{% url 'home' %}" class="btn btn-outline-primary w-100">
+            <i class="fas fa-home"></i> Home
+          </a>
+        </div>
+        <div class="col-md-4">
+          <a href="{% url 'service_points' %}" class="btn btn-outline-primary w-100">
+            <i class="fas fa-map-marker"></i> Services
+          </a>
+        </div>
+        <div class="col-md-4">
+          <a href="{% url 'search' %}" class="btn btn-outline-primary w-100">
+            <i class="fas fa-search"></i> Search
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

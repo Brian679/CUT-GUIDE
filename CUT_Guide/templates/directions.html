@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Get Directions{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <!-- Directions Map -->
+    <div class="card mb-4">
+      <div class="card-body p-0">
+        <div id="directions-map" style="height: 500px;"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="col-md-4">
+    <!-- Route Summary -->
+    <div class="card mb-4">
+      <div class="card-header bg-primary text-white">
+        <h6 class="mb-0">Route Details</h6>
+      </div>
+      <div class="card-body">
+        {% if error %}
+          <div class="alert alert-danger">{{ error }}</div>
+        {% else %}
+          <div class="mb-3">
+            <small class="text-muted">FROM</small>
+            <p class="mb-0"><strong>{{ start_service.name }}</strong></p>
+          </div>
+          <div class="mb-3">
+            <small class="text-muted">TO</small>
+            <p class="mb-0"><strong>{{ end_service.name }}</strong></p>
+          </div>
+          
+          <hr>
+          
+          <div class="d-flex justify-content-between mb-2">
+            <span>📏 Distance:</span>
+            <strong>{{ total_distance|floatformat:0 }} m</strong>
+          </div>
+          <div class="d-flex justify-content-between mb-3">
+            <span>⏱️ Estimated Time:</span>
+            <strong>{{ total_time|floatformat:0 }} min</strong>
+          </div>
+          
+          {% if accessibility_required %}
+            <div class="alert alert-info">
+              ♿ Wheelchair accessible route
+            </div>
+          {% endif %}
+          
+          <a href="{% url 'home' %}" class="btn btn-secondary w-100">Back to Home</a>
+        {% endif %}
+      </div>
+    </div>
+    
+    <!-- Step-by-Step Directions -->
+    {% if steps %}
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h6 class="mb-0">Directions</h6>
+        </div>
+        <div class="card-body">
+          {% for step in steps %}
+            <div class="direction-step">
+              <p class="mb-2">
+                <strong>Step {{ step.number }}</strong>
+              </p>
+              <p class="mb-0">{{ step.instruction }}</p>
+              <small class="text-muted">
+                {{ step.distance|floatformat:0 }}m • {{ step.time|floatformat:0 }} min
+              </small>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const startLat = {{ start_service.latitude }};
+    const startLon = {{ start_service.longitude }};
+    const endLat = {{ end_service.latitude }};
+    const endLon = {{ end_service.longitude }};
+    
+    // Center map between two points
+    const centerLat = (startLat + endLat) / 2;
+    const centerLon = (startLon + endLon) / 2;
+    
+    const map = initMap('directions-map', [centerLat, centerLon], 15);
+    
+    // Add start and end markers
+    const startMarker = addMarker(map, startLat, startLon, "Start: {{ start_service.name }}", 
+      "<strong>{{ start_service.name }}</strong><br>Start Point");
+    startMarker.setIcon(L.icon({
+      iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI4IiBmaWxsPSIjMjhhNzQ1Ii8+PC9zdmc+',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    }));
+    
+    const endMarker = addMarker(map, endLat, endLon, "Destination: {{ end_service.name }}", 
+      "<strong>{{ end_service.name }}</strong><br>Destination");
+    endMarker.setIcon(L.icon({
+      iconUrl: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0Ij48Y2lyY2xlIGN4PSIxMiIgY3k9IjEyIiByPSI4IiBmaWxsPSIjZGMzNTQ1Ii8+PC9zdmc+',
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
+    }));
+    
+    // Draw line between points
+    const line = L.polyline([[startLat, startLon], [endLat, endLon]], {
+      color: '#0d6efd',
+      weight: 3,
+      opacity: 0.7,
+      dashArray: '5, 5'
+    }).addTo(map);
+  });
+</script>
+{% endblock %}

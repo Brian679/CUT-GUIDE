@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - CUT Guide{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <!-- Register Card -->
+            <div class="card shadow-lg border-0 rounded-lg">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </h2>
+
+                    <!-- Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <!-- Registration Form -->
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="username" 
+                                name="username" 
+                                placeholder="Choose a username"
+                                minlength="3"
+                                required
+                            >
+                            <small class="text-muted">3+ characters, letters and numbers only</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input 
+                                type="email" 
+                                class="form-control form-control-lg" 
+                                id="email" 
+                                name="email" 
+                                placeholder="Enter your email"
+                                required
+                            >
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input 
+                                type="password" 
+                                class="form-control form-control-lg" 
+                                id="password" 
+                                name="password" 
+                                placeholder="Create a password"
+                                minlength="6"
+                                required
+                            >
+                            <small class="text-muted">At least 6 characters</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password_confirm" class="form-label">Confirm Password</label>
+                            <input 
+                                type="password" 
+                                class="form-control form-control-lg" 
+                                id="password_confirm" 
+                                name="password_confirm" 
+                                placeholder="Confirm your password"
+                                required
+                            >
+                        </div>
+
+                        <!-- Terms -->
+                        <div class="form-check mb-4">
+                            <input 
+                                class="form-check-input" 
+                                type="checkbox" 
+                                id="agree" 
+                                required
+                            >
+                            <label class="form-check-label" for="agree">
+                                I agree to the <a href="#" class="text-primary">Terms of Service</a>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 mb-3">
+                            <i class="fas fa-user-plus me-2"></i>Create Account
+                        </button>
+                    </form>
+
+                    <!-- Separator -->
+                    <div class="text-center my-4">
+                        <small class="text-muted">or</small>
+                    </div>
+
+                    <!-- Login Link -->
+                    <p class="text-center mb-0">
+                        Already have an account?
+                        <a href="{% url 'login' %}" class="fw-bold text-primary">Login here</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Features -->
+            <div class="mt-4">
+                <h5 class="mb-3">Why Create an Account?</h5>
+                <div class="row">
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-bookmark fa-2x text-primary mb-2"></i>
+                            <p class="small">Save Favorites</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-history fa-2x text-success mb-2"></i>
+                            <p class="small">View History</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-cog fa-2x text-info mb-2"></i>
+                            <p class="small">Customize Settings</p>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="text-center mb-3">
+                            <i class="fas fa-bell fa-2x text-warning mb-2"></i>
+                            <p class="small">Get Notifications</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        transition: transform 0.3s ease;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+    }
+</style>
+{% endblock %}

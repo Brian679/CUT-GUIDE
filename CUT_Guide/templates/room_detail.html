@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ room.room_number }} - {{ building.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <h1>{{ room.room_number }}</h1>
+    <h3 class="text-muted">{{ room.name }}</h3>
+    
+    <hr>
+    
+    <h5>Room Information</h5>
+    <dl class="row">
+      <dt class="col-sm-3">Building:</dt>
+      <dd class="col-sm-9"><a href="{% url 'building_detail' building.id %}">{{ building.name }}</a></dd>
+      
+      {% if room.floor %}
+        <dt class="col-sm-3">Floor:</dt>
+        <dd class="col-sm-9">{{ room.floor.floor_name|default:room.floor.floor_number }}</dd>
+      {% endif %}
+      
+      <dt class="col-sm-3">Type:</dt>
+      <dd class="col-sm-9">{{ room.get_room_type_display }}</dd>
+      
+      {% if room.capacity %}
+        <dt class="col-sm-3">Capacity:</dt>
+        <dd class="col-sm-9">{{ room.capacity }} people</dd>
+      {% endif %}
+      
+      {% if room.office_number %}
+        <dt class="col-sm-3">Extension:</dt>
+        <dd class="col-sm-9">{{ room.office_number }}</dd>
+      {% endif %}
+    </dl>
+    
+    {% if room.description %}
+      <hr>
+      <h5>Description</h5>
+      <p>{{ room.description }}</p>
+    {% endif %}
+    
+    {% if room.accessibility_features %}
+      <hr>
+      <div class="alert alert-success">
+        <strong>♿ Accessibility:</strong><br>
+        {{ room.accessibility_features }}
+      </div>
+    {% endif %}
+  </div>
+  
+  <div class="col-md-4">
+    <!-- Room Map -->
+    <div class="card mb-4">
+      <div class="card-body p-0">
+        <div id="room-map" style="height: 300px;"></div>
+      </div>
+    </div>
+    
+    <!-- Services in Room -->
+    {% if services %}
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h6 class="mb-0">Services in this Room</h6>
+        </div>
+        <div class="card-body">
+          {% for service in services %}
+            <div class="mb-3">
+              <a href="{% url 'service_detail' service.id %}">
+                <strong>{{ service.name }}</strong>
+              </a>
+              <p class="text-muted small mb-0">{{ service.get_service_type_display }}</p>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const map = initMap('room-map', [{{ room.latitude }}, {{ room.longitude }}], 18);
+    addMarker(map, {{ room.latitude }}, {{ room.longitude }}, "{{ room.room_number }}: {{ room.name }}");
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Search Results{% endblock %}
+{% block content %}
+<h2>Search Results for "{{ query }}"</h2>
+
+{% if results %}
+<div class="row">
+  {% for result in results %}
+    {% if result.model_type == 'Building' %}
+      <div class="col-md-6 mb-3">
+        <div class="card service-card h-100">
+          <div class="card-body">
+            <h5 class="card-title">🏢 {{ result.name }}</h5>
+            <p class="card-text text-muted">Building Code: {{ result.code }}</p>
+            <p class="card-text">{{ result.description|truncatewords:15 }}</p>
+            <a href="{% url 'building_detail' result.id %}" class="btn btn-primary btn-sm">View Details</a>
+          </div>
+        </div>
+      </div>
+    {% elif result.model_type == 'Room' %}
+      <div class="col-md-6 mb-3">
+        <div class="card service-card h-100">
+          <div class="card-body">
+            <h5 class="card-title">🚪 {{ result.room_number }}</h5>
+            <p class="card-text">{{ result.name }}</p>
+            <p class="card-text text-muted small">In {{ result.building.name }}</p>
+            <a href="{% url 'room_detail' result.building.id result.id %}" class="btn btn-primary btn-sm">View Details</a>
+          </div>
+        </div>
+      </div>
+    {% elif result.model_type == 'ServicePoint' %}
+      <div class="col-md-6 mb-3">
+        <div class="card service-card h-100">
+          <div class="card-body">
+            <h5 class="card-title">🧭 {{ result.name }}</h5>
+            <p class="card-text text-muted">{{ result.get_service_type_display }}</p>
+            {% if result.building %}
+              <p class="card-text small">Located in {{ result.building.name }}</p>
+            {% endif %}
+            <a href="{% url 'service_detail' result.id %}" class="btn btn-primary btn-sm">View Details</a>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+{% else %}
+<p class="mt-3 text-muted">No results found for "{{ query }}".</p>
+{% endif %}
+
+<a href="/" class="btn btn-secondary mt-4">← Back to Home</a>
+{% endblock %}

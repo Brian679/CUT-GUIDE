@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - CUT Guide{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar Profile Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body text-center py-5">
+                    <div class="profile-avatar mb-3">
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                    </div>
+                    <h3 class="card-title">{{ user.username }}</h3>
+                    <p class="text-muted mb-2">{{ user.email }}</p>
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="{% url 'home' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-home me-2"></i>Back to Home
+                        </a>
+                        <a href="{% url 'logout' %}" class="btn btn-danger btn-sm">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Details -->
+        <div class="col-md-8">
+            <!-- User Information Card -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Account Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <h6 class="mb-0">Username</h6>
+                        </div>
+                        <div class="col-sm-8">
+                            <p class="text-muted">{{ user.username }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <h6 class="mb-0">Email</h6>
+                        </div>
+                        <div class="col-sm-8">
+                            <p class="text-muted">{{ user.email }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row mb-3">
+                        <div class="col-sm-4">
+                            <h6 class="mb-0">First Name</h6>
+                        </div>
+                        <div class="col-sm-8">
+                            <p class="text-muted">{{ user.first_name|default:"Not set" }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h6 class="mb-0">Last Name</h6>
+                        </div>
+                        <div class="col-sm-8">
+                            <p class="text-muted">{{ user.last_name|default:"Not set" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Account Statistics -->
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-chart-bar me-2"></i>Activity Summary
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <h5 class="text-primary">{{ user.date_joined|date:"M d, Y" }}</h5>
+                            <p class="text-muted small">Member Since</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h5 class="text-success">{{ user.last_login|default:"Never" }}</h5>
+                            <p class="text-muted small">Last Login</p>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <h5 class="text-info">Active</h5>
+                            <p class="text-muted small">Account Status</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-warning text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-lock me-2"></i>Security
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Manage your account security settings</p>
+                    <button class="btn btn-outline-warning btn-sm" disabled>
+                        <i class="fas fa-key me-2"></i>Change Password (Coming Soon)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-avatar {
+        animation: fadeIn 0.5s ease-in;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .card {
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+        box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+{% endblock %}

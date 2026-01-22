@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ floor.floor_name|default:floor.floor_number }} - {{ building.name }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-12">
+    <h1>{{ building.name }}</h1>
+    <h2>{{ floor.floor_name|default:"Floor "|add:floor.floor_number }}</h2>
+  </div>
+</div>
+
+<!-- Floorplan Image -->
+{% if floorplan_url %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card">
+        <div class="card-body p-0">
+          <img src="{{ floorplan_url }}" alt="Floorplan" class="img-fluid" style="max-height: 600px;">
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<!-- Rooms on this Floor -->
+{% if rooms %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <h3 class="mb-3">🚪 Rooms</h3>
+    </div>
+    {% for room in rooms %}
+      <div class="col-md-4 mb-3">
+        <div class="card service-card h-100">
+          <div class="card-body">
+            <h6 class="card-title">{{ room.room_number }}</h6>
+            <p class="card-text">{{ room.name }}</p>
+            <p class="card-text text-muted small">{{ room.get_room_type_display }}</p>
+            {% if room.capacity %}
+              <p class="card-text"><small>👥 {{ room.capacity }} people</small></p>
+            {% endif %}
+            <a href="{% url 'room_detail' building.id room.id %}" class="btn btn-sm btn-primary">Details</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<!-- Services on this Floor -->
+{% if services %}
+  <div class="row mb-4">
+    <div class="col-12">
+      <h3 class="mb-3">🧭 Services</h3>
+    </div>
+    {% for service in services %}
+      <div class="col-md-4 mb-3">
+        <div class="card service-card h-100">
+          <div class="card-body">
+            <h6 class="card-title">{{ service.name }}</h6>
+            <p class="card-text text-muted small">{{ service.get_service_type_display }}</p>
+            <a href="{% url 'service_detail' service.id %}" class="btn btn-sm btn-outline-primary">View</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<a href="{% url 'building_detail' building.id %}" class="btn btn-secondary">← Back to {{ building.name }}</a>
+
+{% endblock %}

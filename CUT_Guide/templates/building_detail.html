@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ building.name }} - Building Detail{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <div class="col-md-8">
+    <h1>{{ building.name }}</h1>
+    <p class="text-muted">
+      <strong>Code:</strong> {{ building.code }}
+      {% if building.total_floors %}
+        • <strong>Floors:</strong> {{ building.total_floors }}
+      {% endif %}
+    </p>
+    
+    {% if building.description %}
+      <p class="lead">{{ building.description }}</p>
+    {% endif %}
+    
+    {% if building.accessibility_features %}
+      <div class="alert alert-success">
+        <strong>♿ Accessibility:</strong> {{ building.accessibility_features }}
+      </div>
+    {% endif %}
+    
+    {% if building.contact_phone %}
+      <p>
+        <strong>📞 Contact:</strong> {{ building.contact_phone }}
+      </p>
+    {% endif %}
+  </div>
+  
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Building Info</h5>
+        <ul class="list-unstyled">
+          <li>📍 <strong>Location:</strong></li>
+          <li class="ms-3">Lat: {{ building.latitude }}</li>
+          <li class="ms-3">Lon: {{ building.longitude }}</li>
+          <li class="mt-2">📊 <strong>Rooms:</strong> {{ building.rooms.count }}</li>
+          <li>🧭 <strong>Services:</strong> {{ building.services.count }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Building Map -->
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="card">
+      <div class="card-body p-0">
+        <div id="building-map" style="height: 400px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Floors -->
+{% if floors %}
+<div class="row mb-4">
+  <div class="col-12">
+    <h2 class="mb-3">📊 Floors</h2>
+    <div class="floor-selector">
+      {% for floor in floors %}
+        <a href="{% url 'floor_detail' building.id floor.id %}" class="floor-btn">
+          {{ floor.floor_name|default:floor.floor_number }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Rooms -->
+{% if rooms %}
+<div class="row mb-4">
+  <div class="col-12">
+    <h2 class="mb-3">🚪 Rooms</h2>
+  </div>
+  {% for room in rooms %}
+    <div class="col-md-4 mb-3">
+      <div class="card service-card h-100">
+        <div class="card-body">
+          <h6 class="card-title">{{ room.room_number }}</h6>
+          <p class="card-text">{{ room.name }}</p>
+          <p class="card-text text-muted small">{{ room.get_room_type_display }}</p>
+          {% if room.capacity %}
+            <p class="card-text"><small>👥 Capacity: {{ room.capacity }}</small></p>
+          {% endif %}
+          <a href="{% url 'room_detail' building.id room.id %}" class="btn btn-sm btn-outline-primary">Details</a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Services in Building -->
+{% if building.services.all %}
+<div class="row">
+  <div class="col-12">
+    <h2 class="mb-3">🧭 Services</h2>
+  </div>
+  {% for service in building.services.all %}
+    <div class="col-md-4 mb-3">
+      <div class="card service-card h-100">
+        <div class="card-body">
+          <h6 class="card-title">{{ service.name }}</h6>
+          <p class="card-text text-muted small">{{ service.get_service_type_display }}</p>
+          {% if service.contact_phone %}
+            <p class="card-text"><small>📞 {{ service.contact_phone }}</small></p>
+          {% endif %}
+          <a href="{% url 'service_detail' service.id %}" class="btn btn-sm btn-outline-primary">View</a>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const map = initMap('building-map', [{{ building.latitude }}, {{ building.longitude }}], 16);
+    addMarker(map, {{ building.latitude }}, {{ building.longitude }}, "{{ building.name }}");
+  });
+</script>
+{% endblock %}

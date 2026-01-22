@@ -1,0 +1,543 @@
+{% extends 'base.html' %}
+
+{% block title %}Campus Navigation System{% endblock %}
+
+{% block content %}
+<!-- HERO SECTION WITH SEARCH -->
+<div class="hero-section mb-5">
+  <div class="hero-content">
+    <div class="container">
+      <h1 class="hero-title">Welcome to CUT-Guide</h1>
+      <p class="hero-subtitle">Campus GIS Navigation System - Find your way around Chinhoyi University of Technology</p>
+      
+      <!-- MAIN SEARCH BAR -->
+      <form method="get" action="{% url 'search' %}" class="search-form">
+        <div class="input-group input-group-lg">
+          <input 
+            type="text" 
+            name="q" 
+            class="form-control search-input" 
+            placeholder="🔍 Search for buildings, rooms, services..." 
+            value="{{ request.GET.q }}"
+            required
+          >
+          <button class="btn btn-primary" type="submit">
+            <i class="fas fa-search"></i> Search
+          </button>
+        </div>
+        <small class="text-muted d-block mt-2">Try searching: "Library", "Classroom", "Water Point", or any location name</small>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK STATS -->
+<div class="container mb-5">
+  <div class="row">
+    <div class="col-md-3 mb-3">
+      <div class="stat-card">
+        <h3>{{ building_count }}</h3>
+        <p>Buildings</p>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="stat-card" style="background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">
+        <h3>{{ floor_count }}</h3>
+        <p>Floors Mapped</p>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+        <h3>{{ service_count }}</h3>
+        <p>Service Points</p>
+      </div>
+    </div>
+    <div class="col-md-3 mb-3">
+      <div class="stat-card" style="background: linear-gradient(135deg, #fd7e14 0%, #dc3545 100%);">
+        <h3>✓</h3>
+        <p>24/7 Available</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INTERACTIVE CAMPUS MAP -->
+<div class="container mb-5">
+  <div class="row">
+    <div class="col-12">
+      <div class="map-container">
+        <h2 class="mb-3">
+          <i class="fas fa-map"></i> Campus Map
+        </h2>
+        <p class="text-muted mb-4">Click on markers to view building details and services</p>
+        <div id="campus-map" class="campus-map-display"></div>
+        <small class="text-muted d-block mt-2">
+          <i class="fas fa-info-circle"></i> 
+          Use the search bar above to find specific locations, or explore the map below
+        </small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK LINKS SECTION -->
+<div class="container mb-5">
+  <div class="row">
+    <div class="col-12">
+      <h2 class="mb-4">
+        <i class="fas fa-link"></i> Quick Access
+      </h2>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+      <a href="{% url 'service_points' %}" class="quick-link-card">
+        <div class="quick-link-icon">
+          <i class="fas fa-concierge-bell"></i>
+        </div>
+        <h5>All Services</h5>
+        <p>Browse all campus services and facilities</p>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+      {% if buildings %}
+        <a href="{% url 'building_detail' buildings.0.id %}" class="quick-link-card">
+          <div class="quick-link-icon">
+            <i class="fas fa-building"></i>
+          </div>
+          <h5>Buildings</h5>
+          <p>Explore all campus buildings</p>
+        </a>
+      {% else %}
+        <div class="quick-link-card" style="pointer-events: none; opacity: 0.5;">
+          <div class="quick-link-icon">
+            <i class="fas fa-building"></i>
+          </div>
+          <h5>Buildings</h5>
+          <p>No buildings available yet</p>
+        </div>
+      {% endif %}
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+      <a href="{% url 'service_points' %}?type=admin_office" class="quick-link-card">
+        <div class="quick-link-icon">
+          <i class="fas fa-info-circle"></i>
+        </div>
+        <h5>Information</h5>
+        <p>Campus information & admin services</p>
+      </a>
+    </div>
+    <div class="col-md-3 col-sm-6 mb-3">
+      <a href="{% url 'profile' %}" class="quick-link-card">
+        <div class="quick-link-icon">
+          <i class="fas fa-user-circle"></i>
+        </div>
+        <h5>My Account</h5>
+        <p>View and manage your account</p>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- BUILDINGS SECTION -->
+<div class="container mb-5">
+  <div class="row">
+    <div class="col-12">
+      <h2 class="mb-4">
+        <i class="fas fa-building"></i> Campus Buildings
+      </h2>
+    </div>
+    
+    {% for building in buildings %}
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100 service-card building-card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="mb-0">{{ building.name }}</h5>
+        </div>
+        <div class="card-body">
+          {% if building.code %}
+            <p class="card-text">
+              <span class="badge bg-secondary">Code: {{ building.code }}</span>
+            </p>
+          {% endif %}
+          <p class="card-text">{{ building.description|truncatewords:20 }}</p>
+          
+          <div class="building-info mb-3">
+            {% if building.total_floors %}
+              <small class="d-block">
+                <i class="fas fa-layer-group"></i> 
+                {{ building.total_floors }} floor{{ building.total_floors|pluralize }}
+              </small>
+            {% endif %}
+            
+            {% if building.accessibility_features %}
+              <small class="d-block text-success">
+                <i class="fas fa-wheelchair"></i> 
+                Wheelchair Accessible
+              </small>
+            {% endif %}
+            
+            {% if building.contact_phone %}
+              <small class="d-block">
+                <i class="fas fa-phone"></i> 
+                {{ building.contact_phone }}
+              </small>
+            {% endif %}
+          </div>
+          
+          <a href="{% url 'building_detail' building.id %}" class="btn btn-primary btn-sm w-100">
+            <i class="fas fa-arrow-right me-1"></i> View Details
+          </a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        No buildings found. Start by adding campus buildings in the admin panel.
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- SERVICES SHOWCASE -->
+<div class="container mb-5">
+  <div class="row">
+    <div class="col-12">
+      <h2 class="mb-4">
+        <i class="fas fa-star"></i> Popular Services
+      </h2>
+    </div>
+    
+    {% for service in services|slice:":8" %}
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+      <div class="service-showcase-card">
+        <div class="service-type-badge">{{ service.get_service_type_display }}</div>
+        <div class="service-content">
+          <h6>{{ service.name }}</h6>
+          {% if service.building %}
+            <small class="text-muted">
+              <i class="fas fa-map-marker-alt"></i> {{ service.building.name }}
+            </small>
+          {% endif %}
+          {% if service.is_accessible %}
+            <div class="mt-2">
+              <span class="badge bg-success">
+                <i class="fas fa-wheelchair"></i> Accessible
+              </span>
+            </div>
+          {% endif %}
+          <a href="{% url 'service_detail' service.id %}" class="stretched-link"></a>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div class="alert alert-info">
+        <i class="fas fa-info-circle me-2"></i>
+        No services available yet. Add services through the admin panel.
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- STYLES -->
+<style>
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, #0d6efd 0%, #0dcaf0 100%);
+    color: white;
+    padding: 60px 20px;
+    margin: -1rem -1rem 0 -1rem;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+  }
+  
+  .hero-section::after {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    left: -5%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 50%;
+  }
+  
+  .hero-content {
+    position: relative;
+    z-index: 1;
+  }
+  
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    opacity: 0.95;
+  }
+  
+  /* Search Form */
+  .search-form {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .search-input {
+    background: white;
+    border: none;
+    padding: 1rem;
+    font-size: 1.1rem;
+    color: #333;
+  }
+  
+  .search-input::placeholder {
+    color: #999;
+  }
+  
+  .search-input:focus {
+    box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.5);
+  }
+  
+  .search-form .btn-primary {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    background: #0a58ca;
+    border: none;
+  }
+  
+  .search-form .btn-primary:hover {
+    background: #0645a0;
+  }
+  
+  /* Map Container */
+  .map-container {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .campus-map-display {
+    height: 600px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  }
+  
+  /* Quick Links */
+  .quick-link-card {
+    display: block;
+    padding: 2rem 1.5rem;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    text-align: center;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .quick-link-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #0d6efd;
+  }
+  
+  .quick-link-icon {
+    font-size: 2.5rem;
+    color: #0d6efd;
+    margin-bottom: 1rem;
+  }
+  
+  .quick-link-card h5 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .quick-link-card p {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin: 0;
+  }
+  
+  /* Building Card */
+  .building-card {
+    border: none;
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+  
+  .building-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .building-info small {
+    margin-bottom: 0.3rem;
+  }
+  
+  /* Service Showcase Card */
+  .service-showcase-card {
+    background: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    border: 1px solid #e0e0e0;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    height: 100%;
+  }
+  
+  .service-showcase-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #0d6efd;
+  }
+  
+  .service-type-badge {
+    display: inline-block;
+    background: #0d6efd;
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+  }
+  
+  .service-content h6 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2rem;
+    }
+    
+    .hero-subtitle {
+      font-size: 1rem;
+    }
+    
+    .campus-map-display {
+      height: 400px;
+    }
+    
+    .search-form {
+      max-width: 100%;
+    }
+  }
+</style>
+
+<!-- MAP INITIALIZATION SCRIPT -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize Leaflet map
+    if (document.getElementById('campus-map')) {
+      // CUT Campus coordinates (Chinhoyi, Zimbabwe)
+      const campusLat = {{ campus_lat }};
+      const campusLon = {{ campus_lon }};
+      const campusZoom = {{ campus_zoom }};
+      
+      const map = L.map('campus-map').setView([campusLat, campusLon], campusZoom);
+      
+      // OpenStreetMap Tile Layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+        minZoom: 1,
+      }).addTo(map);
+      
+      // Add a campus center marker
+      L.marker([campusLat, campusLon], {
+        icon: L.icon({
+          iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
+          shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+        })
+      })
+      .bindPopup('<strong>CUT Campus Center</strong><br>Chinhoyi University of Technology')
+      .addTo(map);
+      
+      // Add building markers
+      const buildings = {{ buildings_json|safe }};
+      if (buildings && buildings.length > 0) {
+        buildings.forEach(function(building) {
+          if (building.latitude && building.longitude) {
+            L.marker([building.latitude, building.longitude], {
+              icon: L.icon({
+                iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
+                shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34],
+              })
+            })
+            .bindPopup(`
+              <div style="min-width: 200px;">
+                <strong>${building.name}</strong><br>
+                <small>Code: ${building.code}</small><br>
+                <small>Floors: ${building.total_floors}</small><br>
+                <a href="/building/${building.id}/" class="btn btn-sm btn-primary mt-2" style="width: 100%; text-decoration: none;">View Details</a>
+              </div>
+            `)
+            .addTo(map);
+          }
+        });
+      }
+      
+      // Add service markers with different color
+      const services = {{ services_json|safe }};
+      if (services && services.length > 0) {
+        services.forEach(function(service) {
+          if (service.latitude && service.longitude) {
+            L.circleMarker([service.latitude, service.longitude], {
+              radius: 8,
+              fillColor: '#28a745',
+              color: '#fff',
+              weight: 2,
+              opacity: 1,
+              fillOpacity: 0.8
+            })
+            .bindPopup(`
+              <div style="min-width: 180px;">
+                <strong>${service.name}</strong><br>
+                <small>Type: ${service.service_type}</small><br>
+                <a href="/service/${service.id}/" class="btn btn-sm btn-success mt-2" style="width: 100%; text-decoration: none;">View Details</a>
+              </div>
+            `)
+            .addTo(map);
+          }
+        });
+      }
+      
+      // Add map controls
+      L.control.scale().addTo(map);
+    }
+  });
+</script>
+{% endblock %}
