@@ -14,10 +14,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ------------------------------------------------------------
 # SECURITY SETTINGS
 # ------------------------------------------------------------
+# Read sensitive settings from environment variables so we can safely
+# configure production (e.g., on PythonAnywhere) without changing code.
+# - Set `DJANGO_SECRET_KEY` to a secure value in the host environment.
+# - Set `DJANGO_DEBUG` to 'True' or 'False'. Default is True for local dev.
+# - Set `DJANGO_ALLOWED_HOSTS` to a comma-separated list of hosts.
 
-SECRET_KEY = 'django-insecure-+b3&zs2m=9jt_775(-c&&^f5)uv^4ow+=#!q7g#o+eavadw495'
-DEBUG = True
-ALLOWED_HOSTS = ["*"]  # Allow all hosts (for development)
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-+b3&zs2m=9jt_775(-c&&^f5)uv^4ow+=#!q7g#o+eavadw495'
+)
+
+# DEBUG: default to True when not set (safe for local development).
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('1', 'true', 'yes')
+
+# ALLOWED_HOSTS: read as comma-separated list from env, fallback to localhost
+allowed_hosts_env = os.environ.get('DJANGO_ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
+else:
+    ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 
 
 # ------------------------------------------------------------
@@ -119,4 +135,12 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'danger',
 }
+
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# If running behind a proxy (PythonAnywhere), honor X-Forwarded-Proto header
+# so request.is_secure() works properly when PythonAnywhere serves HTTPS.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
