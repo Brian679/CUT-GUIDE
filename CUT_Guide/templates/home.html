@@ -148,7 +148,7 @@
     
     {% for building in buildings %}
     <div class="col-md-4 mb-4">
-      <div class="card shadow-sm h-100 service-card building-card">
+      <div class="card shadow-sm h-100 service-card building-card" data-lat="{{ building.latitude }}" data-lon="{{ building.longitude }}" data-id="{{ building.id }}">
         <div class="card-header bg-primary text-white">
           <h5 class="mb-0">{{ building.name }}</h5>
         </div>
@@ -485,10 +485,13 @@
       
       // Add building markers
       const buildings = {{ buildings_json|safe }};
+      // Keep a reference to building markers so we can open them from the UI
+      const buildingMarkers = {};
+
       if (buildings && buildings.length > 0) {
         buildings.forEach(function(building) {
           if (building.latitude && building.longitude) {
-            L.marker([building.latitude, building.longitude], {
+            const marker = L.marker([building.latitude, building.longitude], {
               icon: L.icon({
                 iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
                 shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
@@ -506,6 +509,9 @@
               </div>
             `)
             .addTo(map);
+
+            // store marker by building id for later use
+            buildingMarkers[building.id] = marker;
           }
         });
       }
@@ -537,6 +543,27 @@
       
       // Add map controls
       L.control.scale().addTo(map);
+
+      // Add click listeners to the building cards so the map recenters and zooms to the building
+      document.querySelectorAll('.building-card').forEach(function(card) {
+        card.style.cursor = 'pointer';
+        card.addEventListener('click', function(e) {
+          // prevent clicks on internal links (e.g., View Details) from triggering the map fly
+          if (e.target.closest('a')) return;
+          const lat = parseFloat(card.getAttribute('data-lat'));
+          const lon = parseFloat(card.getAttribute('data-lon'));
+          const id = card.getAttribute('data-id');
+          if (!isNaN(lat) && !isNaN(lon)) {
+            // use flyTo for a smooth zoom effect
+            map.flyTo([lat, lon], 19, {duration: 1.0});
+            // open the marker popup if available
+            const m = buildingMarkers[id];
+            if (m) {
+              setTimeout(() => { m.openPopup(); }, 1100);
+            }
+          }
+        });
+      });
     }
   });
 </script>
